@@ -1,4 +1,0 @@
-requests=2.22.0
-BeautifulSoup4=2.2.1
-sys
-json

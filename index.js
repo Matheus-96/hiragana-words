@@ -1,35 +1,38 @@
 const express = require('express')
-//const mongoose = require('mongoose')
-//const axios = require('axios').default;
+const mongoose = require('mongoose')
+const axios = require('axios').default;
+
 
 //mongoose.connect('mongodb')
 const app = express();
-const {spawn} = require('child_process')
- 
+
 app.get('/:query', function(req, res){
     
     
+    // ### PYTHON - BAD USE FOR NODE/HEROKU ###
+    // const {spawn} = require('child_process')
+    // const process = spawn('python3', ["./python/main.py", req.params.query]);
+    // process.stdout.on('data', function(data){
+    //     res.header('Content-Type', 'application/json')
+    //     res.send(data);
+    // })
 
-    const process = spawn('python3', ["./python/main.py", req.params.query]);
-    process.stdout.on('data', function(data){
-        res.header('Content-Type', 'application/json')
-        res.send(data);
+
+    axios({
+        method: 'GET',
+        url: 'https://jisho.org/search/ki',
+        responseType: 'text'
     })
-    // axios({
-    //     method: 'GET',
-    //     url: 'https://jisho.org/search/ki',
-    //     responseType: 'text'
-    // })
-    // .then((response)=>{
+    .then((response)=>{
 
-    //     res.send(response.data)
-    // })
-    // .then((error)=>{
+        res.send(response.data)
+    })
+    .then((error)=>{
 
-    // })
-    // .then(function(){
-    //     console.log("teste")
-    // })
+    })
+    .then(function(){
+        console.log("teste")
+    })
 
  
 })
