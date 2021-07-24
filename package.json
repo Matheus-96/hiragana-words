@@ -19,6 +19,7 @@
   "homepage": "https://github.com/Matheus-96/hiragana-words#readme",
   "dependencies": {
     "axios": "^0.21.1",
+    "body-parser": "^1.19.0",
     "cheerio": "^1.0.0-rc.10",
     "cors": "^2.8.5",
     "express": "^4.17.1",
