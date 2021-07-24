@@ -14,7 +14,7 @@ app.get('/:query', async function(req, res){
     numOfPages = 5
     myData = []
     baseUrl = "https://jisho.org/search/"
-    await getData(req.params.query, Math.round(Math.random()*15))
+    await getData(req.params.query, Math.ceil(Math.random()*15))
     res.header('Content-Type', 'application/json')
     res.send(myData)
 })
@@ -34,7 +34,7 @@ app.post('/words', async function(req, res){
     });
 
     abc = abc.substr(0,abc.length-1)
-    await getDataFiltered(hiragana, abc + '', Math.round(Math.random()*15))
+    await getDataFiltered(hiragana, abc + '', Math.ceil(Math.random()*15))
     res.header('Content-Type', 'application/json')
     res.send(myData)
 })
