@@ -19,23 +19,39 @@ app.get('/:query', async function(req, res){
     res.send(myData)
 })
 
-app.post('/:query', async function(req, res){
-    console.log(req.params.query)
-    console.log(req.body)
+app.post('/words', async function(req, res){
     counter = 0;
     numOfPages = 3
     myData = []
     baseUrl = "https://jisho.org/search/"
-    await getDataFiltered(req.params.query, req.body.hiragana, Math.round(Math.random()*15))
+    hiragana = ""
+    abc = ""
+    body = req.body.hiragana.split('/')
+    
+    body.forEach(element => {
+        hiragana += (element.split(':')[0])
+        abc += ((element.split(':')[1]) == undefined ? "" : (element.split(':')[1]))
+    });
+
+    abc = abc.substr(0,abc.length-1)
+    await getDataFiltered(hiragana, abc + '', Math.round(Math.random()*15))
     res.header('Content-Type', 'application/json')
     res.send(myData)
 })
 
 
-async function getDataFiltered(query, filter, newUrl = 0){
+async function getDataFiltered(filter, abcArr, newUrl = 0){
+    //abcArr+=''
+    
+    abcArr = abcArr.toString().split(',')
+    query = abcArr[Math.floor(Math.random() * abcArr.length)]
+    
+    url = baseUrl+query+"%20%23words" + "?page="+newUrl
+    console.log(url)
     await axios({
         method: 'GET',
-        url: (newUrl!=0 ? baseUrl+query+"%20%23words" + "?page="+newUrl : baseUrl+query+"%20%23words"),
+        url:url,
+        //url: (newUrl!=0 ? baseUrl+query+"%20%23words" + "?page="+newUrl : baseUrl+query+"%20%23words"),
         responseType: 'text'
     })
     .then(async (response)=>{
@@ -62,12 +78,11 @@ async function getDataFiltered(query, filter, newUrl = 0){
         //if(counter > numOfPages) return myData 
         console.log(myData.length)
         if(myData.length >= 20){
-            console.log('siu')
             return
 
         } 
 
-        await getDataFiltered(query, filter, Math.round(Math.random()*15))	
+        await getDataFiltered(filter, abcArr, Math.round(Math.random()*15))	
     })
 
     return
