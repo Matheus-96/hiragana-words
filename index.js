@@ -3,42 +3,79 @@ const mongoose = require('mongoose')
 const axios = require('axios').default
 const cheerio = require('cheerio')
 
-//mongoose.connect('mongodb')
 const app = express();
+app.use(express.json())
 
 app.get('/:query', async function(req, res){
-    
-    // ### PYTHON - BAD USE FOR NODE/HEROKU ###
-    // const {spawn} = require('child_process')
-    // const process = spawn('python3', ["./python/main.py", req.params.query]);
-    // process.stdout.on('data', function(data){
-    //     res.header('Content-Type', 'application/json')
-    //     res.send(data);
-    // })
-        
-
     counter = 0;
-    numOfPages = 1
+    numOfPages = 5
     myData = []
-    console.log("iniciou")
-    await getData(req.params.query)
+    baseUrl = "https://jisho.org/search/"
+    await getData(req.params.query, Math.round(Math.random()*15))
+    res.header('Content-Type', 'application/json')
     res.send(myData)
-    console.log("finalizou")
 })
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Our app is running on port ${ PORT }`);
-});
+app.post('/:query', async function(req, res){
+    console.log(req.body.hiragana)
+    counter = 0;
+    numOfPages = 3
+    myData = []
+    baseUrl = "https://jisho.org/search/"
+    await getDataFiltered(req.params.query, req.body.hiragana, Math.round(Math.random()*15))
+    res.header('Content-Type', 'application/json')
+    res.send(myData)
+})
+
+
+async function getDataFiltered(query, filter, newUrl = 0){
+    await axios({
+        method: 'GET',
+        url: (newUrl!=0 ? baseUrl+query+"%20%23words" + "?page="+newUrl : baseUrl+query+"%20%23words"),
+        responseType: 'text'
+    })
+    .then(async (response)=>{
+        //counter = counter + 1
+        html = response.data
+        $ = cheerio.load(html)
+        //concepts = cheerio.load(soup.html('div .concepts'))
+        $('div .concept_light').each(function(x, elem){
+            wordOk = true
+            furigana = $('.furigana',elem).first().text()
+            furigana = furigana.replace(/\s+/g, ' ').trim()
+            x = furigana.length
+            while(x--){
+                wordOk = filter.includes(furigana[x])
+                if(!wordOk)break
+
+            }
+            translation = $('.meaning-meaning',elem).first().text()
+            translation = translation.replace(/\s+/g, ' ').trim()
+            if(translation && furigana && furigana.length > 1 && wordOk) myData.push({hiragana: furigana, meaning: translation})
+        })
+        newUrl = "https:"+($('.more').attr('href'))
+
+        //if(counter > numOfPages) return myData 
+        console.log(myData.length)
+        if(myData.length >= 30){
+            console.log('siu')
+            return
+
+        } 
+
+        await getDataFiltered(query, filter, Math.round(Math.random()*15))	
+    })
+
+    return
+}
 
 async function getData(query, newUrl = 0){
     await axios({
         method: 'GET',
-        url: (newUrl!=0 ? newUrl : 'https://jisho.org/search/'+query+"%20%23words"),
+        url: (newUrl!=0 ? baseUrl+query+"%20%23words" + "?page="+newUrl : baseUrl+query+"%20%23words"),
         responseType: 'text'
     })
     .then((response)=>{
-
         counter = counter + 1
         html = response.data
         $ = cheerio.load(html)
@@ -48,18 +85,19 @@ async function getData(query, newUrl = 0){
             furigana = furigana.replace(/\s+/g, ' ').trim()
             translation = $('.meaning-meaning',elem).first().text()
             translation = translation.replace(/\s+/g, ' ').trim()
-            if(translation && furigana) myData.push({hiragana: furigana, meaning: translation})
+            if(translation && furigana && furigana.length > 1) myData.push({hiragana: furigana, meaning: translation})
         })
         newUrl = "https:"+($('.more').attr('href'))
-        //console.log(myData)
 
-        if(counter > numOfPages){
-            console.log("teste")
-            return myData
-        } 
+        if(counter > numOfPages) return myData 
 
-        getData(query, newUrl)	
+        getData(query, Math.round(Math.random()*15))	
     })
 
- 
+    
 }
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Our app is running on port ${ PORT }`);
+});
