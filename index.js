@@ -1,10 +1,11 @@
 const express = require('express')
-const mongoose = require('mongoose')
+const cors = require('cors')
 const axios = require('axios').default
 const cheerio = require('cheerio')
 
 const app = express();
 app.use(express.json())
+app.use(cors)
 
 app.get('/:query', async function(req, res){
     counter = 0;
@@ -17,7 +18,8 @@ app.get('/:query', async function(req, res){
 })
 
 app.post('/:query', async function(req, res){
-    console.log(req.body.hiragana)
+    console.log(req)
+    console.log(req.params.query)
     counter = 0;
     numOfPages = 3
     myData = []
