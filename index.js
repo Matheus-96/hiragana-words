@@ -61,7 +61,7 @@ async function getDataFiltered(query, filter, newUrl = 0){
 
         //if(counter > numOfPages) return myData 
         console.log(myData.length)
-        if(myData.length >= 15){
+        if(myData.length >= 20){
             console.log('siu')
             return
 
