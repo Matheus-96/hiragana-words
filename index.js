@@ -102,14 +102,12 @@ async function getDataFiltered(filter, abcArr, newUrl = 0){
         $ = cheerio.load(html)
         console.log(url)
         var hiragana = ""
-        //$('div .concepts > .concept_light').each(function(x, elem){
         $('.resrow').each(function(x, elem){
             
             console.log()
             wordOk = true
             
             hiragana = $('.rdng', elem).text()
-            //wordOk = myData.indexOf(hiragana) == -1 ? true : false
             wordOk = myData.map((e)=>{return e.hiragana}).indexOf(hiragana) == -1 ? true : false
             
             if(wordOk){
@@ -126,7 +124,7 @@ async function getDataFiltered(filter, abcArr, newUrl = 0){
     
     
     console.log(myData.length)
-    if(myData.length >= 20){
+    if(myData.length >= 40){
         return
     } 
     await getDataFiltered(filter, abcArr)
